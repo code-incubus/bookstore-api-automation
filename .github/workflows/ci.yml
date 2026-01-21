@@ -21,14 +21,24 @@ jobs:
           BASE_URL: https://fakerestapi.azurewebsites.net/api/v1
         run: |
           mkdir -p out
+          
           docker run --rm \
             -e BASE_URL="${BASE_URL}" \
             -v "${{ github.workspace }}/out:/out" \
             bookstore-api-tests:ci \
-            mvn -q test \
-              -Dallure.results.directory=/out/allure-results \
-              allure:report \
-              -Dallure.report.directory=/out/allure-report
+            bash -lc '
+              set +e
+              mvn -q test -Dallure.results.directory=/out/allure-results
+              TEST_EXIT=$?
+              set -e
+          
+              mvn -q allure:report
+          
+              mkdir -p /out/allure-report
+              cp -r target/site/allure-maven-plugin/* /out/allure-report/ || true
+          
+              exit $TEST_EXIT
+            '
 
       - name: Upload Allure report artifact
         if: always()
