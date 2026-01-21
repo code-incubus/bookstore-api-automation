@@ -1,0 +1,8 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AuthorsList",
+  "type": "array",
+  "items": {
+    "$ref": "author.schema.json"
+  }
+}
