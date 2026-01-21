@@ -34,8 +34,9 @@ jobs:
           
               mvn -q allure:report
           
+              rm -rf /out/allure-report
               mkdir -p /out/allure-report
-              cp -r target/site/allure-maven-plugin/* /out/allure-report/ || true
+              cp -r target/site/allure-maven-plugin /out/allure-report/ || true
           
               exit $TEST_EXIT
             '
