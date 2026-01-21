@@ -1,0 +1,42 @@
+name: API Automation CI (Docker)
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test-in-docker:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t bookstore-api-tests:ci .
+
+      - name: Run tests in Docker (generate Allure report)
+        env:
+          BASE_URL: https://fakerestapi.azurewebsites.net/api/v1
+        run: |
+          mkdir -p target
+          docker run --rm \
+            -e BASE_URL="${BASE_URL}" \
+            -v "${{ github.workspace }}/target:/app/target" \
+            bookstore-api-tests:ci \
+            mvn -q clean test allure:report
+
+      - name: Upload Allure report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: target/site/allure-maven-plugin/
+
+      - name: Upload raw Allure results artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results
+          path: target/allure-results/
