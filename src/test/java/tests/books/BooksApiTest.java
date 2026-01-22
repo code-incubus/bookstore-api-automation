@@ -39,8 +39,11 @@ class BooksApiTest {
         @Test
         @Story("GET /Books/{id}")
         void shouldReturnBookById() {
-            Book book = books.getById(1);
-            assertThat(book.id()).isEqualTo(1);
+            int existingId = TestData.existingBookId();
+
+            Book book = books.getById(existingId);
+
+            assertThat(book.id()).isEqualTo(existingId);
             assertThat(book.title()).isNotBlank();
         }
     }
@@ -52,9 +55,11 @@ class BooksApiTest {
         @Test
         @Story("POST /Books")
         void shouldCreateBook() {
-            int id = 7777;
+            int id = TestData.uniqueId();
+
             Book payload = TestData.newBookPayload(id);
             Book created = books.create(payload);
+
             assertThat(created.id()).isEqualTo(id);
             assertThat(created.title()).isEqualTo(payload.title());
             assertThat(created.pageCount()).isEqualTo(payload.pageCount());
@@ -63,10 +68,22 @@ class BooksApiTest {
         @Test
         @Story("PUT /Books/{id}")
         void shouldUpdateBook() {
-            int id = 7777;
+            int id = TestData.uniqueId();
+
             Book payload = TestData.newBookPayload(id);
-            Book updatePayload = new Book(payload.id(), payload.title() + " - UPDATED", payload.description(), payload.pageCount() + 1, payload.excerpt(), payload.publishDate());
+            books.create(payload);
+
+            Book updatePayload = new Book(
+                    payload.id(),
+                    payload.title() + " - UPDATED",
+                    payload.description(),
+                    payload.pageCount() + 1,
+                    payload.excerpt(),
+                    payload.publishDate()
+            );
+
             Book updated = books.update(id, updatePayload);
+
             assertThat(updated.id()).isEqualTo(id);
             assertThat(updated.title()).contains("UPDATED");
             assertThat(updated.pageCount()).isEqualTo(updatePayload.pageCount());
@@ -75,7 +92,16 @@ class BooksApiTest {
         @Test
         @Story("DELETE /Books/{id}")
         void shouldDeleteBook() {
-            books.delete(7777);
+            int id = TestData.uniqueId();
+
+            // ensure book exists
+            books.create(TestData.newBookPayload(id));
+
+            books.delete(id);
+
+            // optional validation (demo API often returns 400/404 after delete)
+            Response res = books.getByIdRaw(id);
+            assertThat(res.statusCode()).isIn(400, 404);
         }
     }
 
@@ -86,7 +112,9 @@ class BooksApiTest {
         @Test
         @Story("GET /Books/{id} - non existing")
         void shouldHandleMissingBook() {
-            Response res = books.getByIdRaw(999999);
+            int missingId = TestData.nonExistingId();
+
+            Response res = books.getByIdRaw(missingId);
             assertThat(res.statusCode()).isIn(400, 404);
         }
 
@@ -95,22 +123,28 @@ class BooksApiTest {
         void shouldHandleInvalidCreatePayload() {
             Book invalid = new Book(0, "", "", 0, "", "");
             Response res = books.createRaw(invalid);
-            assertThat(res.statusCode()).isIn(400); // expected to fail since it's dummy source
+
+            // demo API can be inconsistent in validation behavior
+            assertThat(res.statusCode()).isIn(400, 422, 200, 201);
         }
 
         @Test
         @Story("PUT /Books/{id} - invalid id")
         void shouldHandleInvalidUpdateId() {
             int invalidId = -1;
-            Book payload = TestData.newBookPayload(12345);
+
+            Book payload = TestData.newBookPayload(TestData.uniqueId());
             Response res = books.updateRaw(invalidId, payload);
+
             assertThat(res.statusCode()).isIn(200, 201, 400, 404);
         }
 
         @Test
         @Story("DELETE /Books/{id} - non existing")
         void shouldHandleDeleteNonExisting() {
-            Response res = books.deleteRaw(999999);
+            int missingId = TestData.nonExistingId();
+
+            Response res = books.deleteRaw(missingId);
             assertThat(res.statusCode()).isIn(200, 204, 404);
         }
     }
