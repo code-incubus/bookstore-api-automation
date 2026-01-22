@@ -37,7 +37,7 @@ jobs:
                 -Dallure.report.directory=/out/allure-report
 
               echo "Allure results files: $(find /out/allure-results -type f | wc -l)"
-              echo "Allure report index exists?"; test -f /out/allure-report/index.html && echo YES || echo NO
+              test -f /out/allure-report/index.html && echo "Report OK" || (echo "Report missing" && exit 1)
 
               exit $TEST_EXIT
             '
