@@ -28,8 +28,7 @@ jobs:
             bookstore-api-tests:ci \
             bash -lc '
               set +e
-              mvn -q clean test \
-                -Dallure.results.directory=/out/allure-results
+              mvn -q clean test -Dallure.results.directory=/out/allure-results
               TEST_EXIT=$?
               set -e
 
@@ -37,11 +36,8 @@ jobs:
                 -Dallure.results.directory=/out/allure-results \
                 -Dallure.report.directory=/out/allure-report
 
-              echo "==== RESULTS FILE COUNT ===="
-              find /out/allure-results -type f | wc -l || true
-
-              echo "==== REPORT ROOT FILES ===="
-              ls -la /out/allure-report || true
+              echo "Allure results files: $(find /out/allure-results -type f | wc -l)"
+              echo "Allure report index exists?"; test -f /out/allure-report/index.html && echo YES || echo NO
 
               exit $TEST_EXIT
             '
