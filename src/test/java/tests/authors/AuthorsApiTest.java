@@ -74,7 +74,7 @@ class AuthorsApiTest {
             Author updated = authors.update(authorId, update);
             assertThat(updated.id()).isEqualTo(authorId);
             assertThat(updated.firstName()).contains("UPDATED");
-            assertThat(updated.lastName()).contains("FAILED"); // expected to fail since it's dummy source
+            assertThat(updated.lastName()).contains("UPDATED");
         }
 
         @Test

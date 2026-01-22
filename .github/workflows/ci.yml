@@ -23,22 +23,20 @@ jobs:
           mkdir -p out
           
           docker run --rm \
-            -e BASE_URL="${BASE_URL}" \
-            -v "${{ github.workspace }}/out:/out" \
-            bookstore-api-tests:ci \
-            bash -lc '
-              set +e
-              mvn -q test -Dallure.results.directory=/out/allure-results
-              TEST_EXIT=$?
-              set -e
+          -e BASE_URL="${BASE_URL}" \
+          -v "${{ github.workspace }}/out:/out" \
+          bookstore-api-tests:ci \
+          bash -lc '
+          set +e
+          mvn -q clean test -Dallure.results.directory=/out/allure-results
+          TEST_EXIT=$?
+          set -e
           
-              mvn -q allure:report
+          mvn -q allure:report \
+          -Dallure.results.directory=/out/allure-results \
+          -Dallure.report.directory=/out/allure-report
           
-              rm -rf /out/allure-report
-              mkdir -p /out/allure-report
-              cp -r target/site/allure-maven-plugin /out/allure-report/ || true
-          
-              exit $TEST_EXIT
+          exit $TEST_EXIT
             '
 
       - name: Upload Allure report artifact
