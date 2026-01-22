@@ -37,10 +37,10 @@ jobs:
                 -Dallure.results.directory=/out/allure-results \
                 -Dallure.report.directory=/out/allure-report
 
-              echo "==== ALLURE RESULTS ===="
+              echo "==== RESULTS FILE COUNT ===="
               find /out/allure-results -type f | wc -l || true
 
-              echo "==== ALLURE REPORT FILES ===="
+              echo "==== REPORT ROOT FILES ===="
               ls -la /out/allure-report || true
 
               exit $TEST_EXIT

@@ -12,11 +12,12 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
         <junit.version>5.10.2</junit.version>
         <restassured.version>5.5.0</restassured.version>
         <allure.version>2.27.0</allure.version>
         <allure.junit5.version>2.27.0</allure.junit5.version>
+        <allure.results.directory>${project.build.directory}/allure-results</allure.results.directory>
+        <allure.maven.version>2.17.0</allure.maven.version>
     </properties>
 
     <dependencies>
@@ -54,29 +55,33 @@
             <version>3.26.3</version>
         </dependency>
 
-        <!-- Allure (reporting) -->
+        <!-- Allure -->
         <dependency>
             <groupId>io.qameta.allure</groupId>
             <artifactId>allure-junit5</artifactId>
             <version>${allure.junit5.version}</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>io.qameta.allure</groupId>
             <artifactId>allure-rest-assured</artifactId>
             <version>${allure.version}</version>
+            <scope>test</scope>
         </dependency>
 
+        <!-- Logging -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <version>2.0.16</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>json-schema-validator</artifactId>
-            <version>5.5.0</version>
+            <version>${restassured.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -91,8 +96,7 @@
                 <configuration>
                     <useModulePath>false</useModulePath>
                     <systemPropertyVariables>
-                        <!-- Allure results folder -->
-                        <allure.results.directory>${project.build.directory}/allure-results</allure.results.directory>
+                        <allure.results.directory>${allure.results.directory}</allure.results.directory>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
@@ -101,8 +105,9 @@
             <plugin>
                 <groupId>io.qameta.allure</groupId>
                 <artifactId>allure-maven</artifactId>
-                <version>2.17.0</version>
+                <version>${allure.maven.version}</version>
             </plugin>
         </plugins>
     </build>
+
 </project>

@@ -95,7 +95,7 @@ class BooksApiTest {
         void shouldHandleInvalidCreatePayload() {
             Book invalid = new Book(0, "", "", 0, "", "");
             Response res = books.createRaw(invalid);
-            assertThat(res.statusCode()).isIn(200); // expected to fail since it's dummy source
+            assertThat(res.statusCode()).isIn(400); // expected to fail since it's dummy source
         }
 
         @Test
