@@ -16,27 +16,34 @@ jobs:
       - name: Build Docker image
         run: docker build -t bookstore-api-tests:ci .
 
-      - name: Run tests in Docker (generate Allure report)
+      - name: Run tests in Docker and generate Allure report
         env:
           BASE_URL: https://fakerestapi.azurewebsites.net/api/v1
         run: |
           mkdir -p out
-          
+
           docker run --rm \
-          -e BASE_URL="${BASE_URL}" \
-          -v "${{ github.workspace }}/out:/out" \
-          bookstore-api-tests:ci \
-          bash -lc '
-          set +e
-          mvn -q clean test -Dallure.results.directory=/out/allure-results
-          TEST_EXIT=$?
-          set -e
-          
-          mvn -q allure:report \
-          -Dallure.results.directory=/out/allure-results \
-          -Dallure.report.directory=/out/allure-report
-          
-          exit $TEST_EXIT
+            -e BASE_URL="${BASE_URL}" \
+            -v "${{ github.workspace }}/out:/out" \
+            bookstore-api-tests:ci \
+            bash -lc '
+              set +e
+              mvn -q clean test \
+                -Dallure.results.directory=/out/allure-results
+              TEST_EXIT=$?
+              set -e
+
+              mvn -q allure:report \
+                -Dallure.results.directory=/out/allure-results \
+                -Dallure.report.directory=/out/allure-report
+
+              echo "==== ALLURE RESULTS ===="
+              find /out/allure-results -type f | wc -l || true
+
+              echo "==== ALLURE REPORT FILES ===="
+              ls -la /out/allure-report || true
+
+              exit $TEST_EXIT
             '
 
       - name: Upload Allure report artifact
